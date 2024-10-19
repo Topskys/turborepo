@@ -9,6 +9,7 @@ import {
 import { refreshTokenApi, isRefreshToken } from "../apis";
 import { message } from "antd";
 import router from "../router";
+import { useShowMessage } from "@/hooks";
 
 /**
  * 自定义响应类型
@@ -25,6 +26,8 @@ export type CustomResponse<T> = {
 export type CustomAxiosRequestConfig = InternalAxiosRequestConfig<any> & {
   __isRefreshToken?: boolean;
 };
+
+const { showMessage } = useShowMessage();
 
 export const ins = axios.create({
   baseURL: "http://localhost:8000/api",
@@ -45,9 +48,20 @@ ins.interceptors.response.use(
       setToken(token);
       ins.defaults.headers["Authorization"] = `Bearer ${token}`;
     }
+
     // 设置刷新token
     const refreshToken = res.headers.refreshtoken;
     if (refreshToken) setRefreshToken(refreshToken);
+
+    // 失败
+    if (res.data.code !== 200) {
+      showMessage({
+        type: "error",
+        content: res.data.message || "请求失败",
+      });
+      return Promise.reject(res);
+    }
+
     // 无权限
     if (res.data.code === 401 && !isRefreshToken(res.config)) {
       console.log("刷新token");
@@ -71,7 +85,10 @@ ins.interceptors.response.use(
   (error) => {
     const { message: msg, response } = error;
     const errorInfo = msg ?? response.data?.message;
-    message.error(errorInfo);
+    showMessage({
+      type: "error",
+      content: errorInfo || "请求失败",
+    });
     return Promise.reject(error);
   }
 );

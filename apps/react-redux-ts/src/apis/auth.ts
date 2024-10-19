@@ -1,20 +1,19 @@
+import { LoginResult, UserInfo } from "../types";
 import { getRefreshToken } from "../utils";
-import request, { CustomAxiosRequestConfig, CustomResponse } from "../utils/http";
+import request, {
+  CustomAxiosRequestConfig,
+  CustomResponse,
+} from "../utils/http";
 
 /**
  * 获取验证码
  */
 export function getCaptchaApi() {
-  const imgUrl = "http://localhost:8000/api/captcha";
-  fetch(imgUrl, { method: "post" })
-    .then((response) => response.text())
-    .then((svgString) => {
-      const parser = new DOMParser();
-      const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
-      document
-        .getElementById("svgContainer")!
-        .appendChild(svgDoc.documentElement);
-    }) .catch(error => console.error('Error fetching SVG:', error));
+  return request({
+    url: "/captcha",
+    method: "POST",
+    responseType: "text", // 设置响应类型为text or blob
+  });
 }
 
 /**
@@ -27,16 +26,13 @@ export async function loginApi(data: {
   username: string;
   password: string;
   captcha: string;
-}) {
-  return (await request({
+}): Promise<CustomResponse<LoginResult>> {
+  return await request({
     url: "/login",
     method: "post",
     data,
-  })) as CustomResponse<any>;
+  });
 }
-
-
-
 
 /**
  * 刷新token
@@ -63,4 +59,34 @@ export async function refreshTokenApi() {
 
 export function isRefreshToken(config: CustomAxiosRequestConfig) {
   return !!config.__isRefreshToken;
+}
+
+/**
+ * 获取当前用户信息
+ *
+ * 例如：
+ * return {
+ *  code: 200,
+ *  message:"ok",
+ *  data: {
+ *     roles:[], // 用户角色
+ *     permissions: [], // 用户（按钮）权限
+ *     id:"1",
+ *     username:"admin",
+ *     nickname:"管理员",
+ *     avatar:"https://xxx.com/avatar.jpg"
+ *     phone:"18700001234", // 手机号
+ *     email:"34256789@qq.com", // 邮箱地址
+ *  }
+ * }
+ */
+export async function getUserInfoApi(): Promise<CustomResponse<UserInfo>> {
+  return await request.get("/user-info");
+}
+
+/**
+ * 获取路由菜单
+ */
+export async function getRouterApi(): Promise<CustomResponse<any[]>> {
+  return await request.get("/router");
 }

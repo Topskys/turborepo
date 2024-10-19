@@ -16,7 +16,17 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* 设置别名 */
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    
+    /* 允许js */
+    "allowJs": true, // 允许导入 JavaScript 文件  
+    "checkJs": false, // 不对 JavaScript 文件进行类型检查   
   },
   "include": ["vite.config.ts"]
 }

@@ -1,51 +1,58 @@
-import { Button, Form, Input, message } from "antd";
+import { Form, Input, message } from "antd";
 import { getCaptchaApi, loginApi } from "../apis/auth";
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import request from "../utils/http";
 
 const Login = () => {
-  getCaptchaApi();
-  const [res2, setRes2] = useState<any>("");
+  const getSvgCaptcha = (id: string = "svgContainer") => {
+    const svgContainer = document.getElementById(id)!;
+    getCaptchaApi()
+      .then((svgString: any) => {
+        svgContainer.innerHTML = svgString;
+      })
+      .catch(() => {
+        svgContainer.innerHTML = `<img src="/captcha" alt="失败" />`;
+      });
+  };
+
+  useEffect(() => {
+    getSvgCaptcha();
+    return () => {
+      getSvgCaptcha();
+    };
+  }, []);
 
   const getSse = () => {
-    request.get("/sse").then((res:any) => {
-      setRes2(res);
+    request.get("/sse").then((res: any) => {
       console.log("----收到啦---", res.toString());
     });
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <div className="flex justify-center items-center h-screen bg-[#f4f6f9]">
       <Form
         name="basic"
         labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
+        wrapperCol={{ span: 24 }}
         initialValues={{
           remember: true,
           username: "admin",
           password: "123456",
         }}
+        size="large"
         autoComplete="off"
         onFinish={async (values) => {
           const res = await loginApi(values);
           if (res.code === 200) {
             message.success("登录成功");
-            getSse()
+            getSse();
           } else {
             message.error(res.message);
           }
         }}
-        style={{
-          width: "400px",
-        }}
+        className="bg-white p-6 rounded-lg shadow-md"
       >
-        <h3>Login</h3>
+        <div className="text-2xl font-bold mb-4">登录</div>
         <Form.Item
           name="username"
           rules={[{ required: true, message: "Please input your username!" }]}
@@ -64,15 +71,13 @@ const Login = () => {
             { required: true, message: "Please input your validate code!" },
           ]}
         >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Input placeholder="请输入验证码" />
-            <div id="svgContainer"></div>
+          <div className="flex justify-between items-center">
+            <Input placeholder="请输入验证码" className="flex-1" />
+            <div
+              id="svgContainer"
+              className="w-[80px] h-[40px] cursor-pointer"
+              onClick={() => getSvgCaptcha()}
+            ></div>
           </div>
         </Form.Item>
         <Form.Item>

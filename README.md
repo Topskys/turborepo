@@ -79,3 +79,4 @@ Learn more about the power of Turborepo:
 - [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
 - [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
 - [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+- [使用 pnpm、turborepo 构建 monorepo 项目，changesets 管理日志和版本详解，从零至 github actions（CI）云端缓存 发布 npm 流程](https://ksh7.com/posts/workspace-pnpm-turborepo-changesets/#%E4%BD%BF%E7%94%A8%E6%A8%A1%E7%89%88)
